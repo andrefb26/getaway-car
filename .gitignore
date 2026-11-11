@@ -1,0 +1,8 @@
+*.o
+*.a
+*.d
+proj/proj
+lab*/lab[0-9]
+proj/doc/doxygen/
+trace.txt
+output.txt

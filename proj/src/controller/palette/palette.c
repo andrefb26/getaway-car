@@ -1,0 +1,319 @@
+#include "palette.h"
+#include <lcom/lcf.h>
+
+/* ── GAME_PALETTE[256][3]: valores RGB para cada índice 0-255 ────────
+ * Bloco  0- 7: base          8-23: pista      24-39: cenário
+ * Bloco 40-55: carro 1      56-71: carro 2    72-87: carro 3
+ * Bloco 88-103: carro 4   104-119: boost    120-135: óleo
+ * Bloco 136-191: HUD/UI  192-254: cubo RGB (cobertura geral)
+ *
+ * Slots 20-23, 36-39, 67-71, 77-87, 93-103, 111-119, 127-135, 147-254:
+ * preenchidos com cubo web-safe 6x6x6 filtrado para não duplicar cores
+ * já definidas — melhora o palette_find_index() para sprites futuros.
+ *
+ * Cada cor usada em ficheiros XPM aparece APENAS UMA VEZ para que
+ * xpm_load(XPM_INDEXED) faça match correto.
+ */
+const uint8_t GAME_PALETTE[256][3] = {
+    /* ── Bloco 0: Base (0-7) ── */
+    /* 0  PAL_BLACK          */ {0x00, 0x00, 0x00},
+    /* 1  PAL_WHITE          */ {0xFF, 0xFF, 0xFF},
+    /* 2  PAL_GREY_LIGHT     */ {0xCC, 0xCC, 0xCC},
+    /* 3  PAL_GREY_MID       */ {0x99, 0x99, 0x99},
+    /* 4  PAL_GREY_DARK      */ {0x66, 0x66, 0x66},
+    /* 5  PAL_GREY_VERY_DARK */ {0x33, 0x33, 0x33},
+    /* 6  PAL_OFF_WHITE      */ {0xF0, 0xF0, 0xF0},
+    /* 7  PAL_CREAM          */ {0xFF, 0xFA, 0xCD},
+
+    /* ── Bloco 1: Pista (8-23) ── */
+    /* 8  PAL_ASPHALT_DARK   */ {0x2A, 0x2A, 0x2A},
+    /* 9  PAL_ASPHALT_MID    */ {0x38, 0x38, 0x38},
+    /* 10 PAL_ASPHALT_BASE   */ {0x44, 0x44, 0x44},
+    /* 11 PAL_ASPHALT_LIGHT  */ {0x55, 0x55, 0x55},
+    /* 12 PAL_LANE_MARK      */ {0xFF, 0xFF, 0x00},
+    /* 13 PAL_CENTRE_LINE    */ {0xF8, 0xF8, 0xF8},
+    /* 14 PAL_KERB_WHITE     */ {0xF0, 0xF0, 0xF0},
+    /* 15 PAL_KERB_RED       */ {0xFF, 0x22, 0x22},
+    /* 16 PAL_FINISH_DARK    */ {0x28, 0x28, 0x28},
+    /* 17 PAL_FINISH_LIGHT   */ {0xEE, 0xEE, 0xEE},
+    /* 18 PAL_ROAD_EDGE      */ {0x19, 0x19, 0x19},
+    /* 19 PAL_TYRE_MARK      */ {0x1B, 0x1B, 0x1B},
+    /* 20 (cubo)             */ {0x00, 0x00, 0x66},
+    /* 21 (cubo)             */ {0x00, 0x00, 0x99},
+    /* 22 (cubo)             */ {0x00, 0x00, 0xCC},
+    /* 23 (cubo)             */ {0x00, 0x00, 0xFF},
+
+    /* ── Bloco 2: Cenário (24-39) ── */
+    /* 24 PAL_GRASS_BASE     */ {0x3A, 0x7D, 0x44},
+    /* 25 PAL_GRASS_DARK     */ {0x2A, 0x60, 0x30},
+    /* 26 PAL_GRASS_LIGHT    */ {0x4A, 0x9A, 0x55},
+    /* 27 PAL_GRASS_DRY      */ {0x8B, 0x73, 0x55},
+    /* 28 PAL_TREE_DARK      */ {0x1A, 0x5C, 0x1A},
+    /* 29 PAL_TREE_MID       */ {0x2E, 0x7D, 0x32},
+    /* 30 PAL_TREE_LIGHT     */ {0x4C, 0xAF, 0x50},
+    /* 31 PAL_TREE_TRUNK     */ {0x5D, 0x40, 0x37},
+    /* 32 PAL_SKY_BLUE       */ {0x87, 0xCE, 0xEB},
+    /* 33 PAL_SKY_LIGHT      */ {0xB0, 0xE0, 0xE6},
+    /* 34 PAL_FENCE_GREY     */ {0x7A, 0x7A, 0x7A},
+    /* 35 PAL_FENCE_DARK     */ {0x4A, 0x4A, 0x4A},
+    /* 36 (cubo)             */ {0x00, 0x33, 0x00},
+    /* 37 (cubo)             */ {0x00, 0x33, 0x99},
+    /* 38 (cubo)             */ {0x00, 0x33, 0xCC},
+    /* 39 (cubo)             */ {0x00, 0x66, 0x00},
+
+    /* ── Bloco 3: Carro 1 – azul (40-55) — cores de car_blue.xpm ── */
+    /* 40 PAL_CAR1_NORMAL    */ {0x1A, 0x52, 0x76},
+    /* 41 PAL_CAR1_HILITE    */ {0x24, 0x71, 0xA3},
+    /* 42 PAL_CAR1_SHADOW    */ {0x15, 0x43, 0x60},
+    /* 43 PAL_CAR1_WINDOW    */ {0x85, 0xC1, 0xE9},
+    /* 44 PAL_CAR1_WHEEL     */ {0x1A, 0x1A, 0x1A},
+    /* 45 PAL_CAR1_RIM       */ {0xF9, 0xE7, 0x9F},
+    /* 46 PAL_CAR1_DETAIL    */ {0x22, 0x22, 0x22},
+    /* 47 PAL_CAR1_HEADLT    */ {0xFE, 0xF9, 0xE7},
+    /* 48 PAL_CAR1_TAILLT    */ {0xD6, 0xEA, 0xF8},
+    /* 49 PAL_CAR1_DAMAGED   */ {0x2C, 0x7F, 0xB0},
+    /* 50 PAL_CAR1_DMG_DRK   */ {0x1A, 0x3E, 0x58},
+    /* 51 PAL_CAR1_BURNING   */ {0x12, 0x30, 0x48},
+    /* 52 PAL_CAR1_FLAME     */ {0xFF, 0x88, 0x00},
+    /* 53 PAL_CAR1_SMOKE     */ {0x77, 0x77, 0x77},
+    /* 54 PAL_CAR1_EXPLODED  */ {0x50, 0x50, 0x50},
+    /* 55 PAL_CAR1_EXP_DRK   */ {0x30, 0x30, 0x30},
+
+    /* ── Bloco 4: Carro 2 – vermelho (56-71) — cores de car_red.xpm ── */
+    /* 56 PAL_CAR2_NORMAL    */ {0xC0, 0x39, 0x2B},
+    /* 57 PAL_CAR2_HILITE    */ {0xE7, 0x4C, 0x3C},
+    /* 58 PAL_CAR2_SHADOW    */ {0xA9, 0x32, 0x26},
+    /* 59 PAL_CAR2_WINDOW    */ {0x92, 0x2B, 0x21},
+    /* 60 PAL_CAR2_DAMAGED   */ {0xD4, 0x5F, 0x3A},
+    /* 61 PAL_CAR2_DMG_DRK   */ {0x8A, 0x28, 0x20},
+    /* 62 PAL_CAR2_BURNING   */ {0x6E, 0x20, 0x18},
+    /* 63 PAL_CAR2_FLAME     */ {0xFF, 0x66, 0x00},
+    /* 64 PAL_CAR2_SMOKE     */ {0x68, 0x68, 0x68},
+    /* 65 PAL_CAR2_EXPLODED  */ {0x48, 0x48, 0x48},
+    /* 66 PAL_CAR2_EXP_DRK   */ {0x28, 0x28, 0x28},
+    /* 67 (cubo)             */ {0x00, 0x66, 0x33},
+    /* 68 (cubo)             */ {0x00, 0x66, 0x66},
+    /* 69 (cubo)             */ {0x00, 0x66, 0x99},
+    /* 70 (cubo)             */ {0x00, 0x66, 0xCC},
+    /* 71 (cubo)             */ {0x00, 0x99, 0x00},
+
+    /* ── Bloco 5: Carro 3 – amarelo (72-87) ── */
+    /* 72 PAL_CAR3_NORMAL    */ {0xFF, 0xDD, 0x00},
+    /* 73 PAL_CAR3_HILITE    */ {0xFF, 0xEE, 0x66},
+    /* 74 PAL_CAR3_SHADOW    */ {0xCC, 0xAA, 0x00},
+    /* 75 PAL_CAR3_WINDOW    */ {0xFF, 0xFF, 0xAA},
+    /* 76 PAL_CAR3_DAMAGED   */ {0xFF, 0xAA, 0x00},
+    /* 77 (cubo)             */ {0x00, 0x99, 0x66},
+    /* 78 (cubo)             */ {0x00, 0x99, 0x99},
+    /* 79 (cubo)             */ {0x00, 0x99, 0xCC},
+    /* 80 (cubo)             */ {0x00, 0x99, 0xFF},
+    /* 81 (cubo)             */ {0x00, 0xCC, 0x99},
+    /* 82 (cubo)             */ {0x00, 0xCC, 0xCC},
+    /* 83 (cubo)             */ {0x00, 0xCC, 0xFF},
+    /* 84 (cubo)             */ {0x00, 0xFF, 0x33},
+    /* 85 (cubo)             */ {0x00, 0xFF, 0x66},
+    /* 86 (cubo)             */ {0x00, 0xFF, 0x99},
+    /* 87 (cubo)             */ {0x00, 0xFF, 0xCC},
+
+    /* ── Bloco 6: Carro 4 – verde (88-103) ── */
+    /* 88 PAL_CAR4_NORMAL    */ {0x00, 0xCC, 0x44},
+    /* 89 PAL_CAR4_HILITE    */ {0x44, 0xEE, 0x66},
+    /* 90 PAL_CAR4_SHADOW    */ {0x00, 0x99, 0x33},
+    /* 91 PAL_CAR4_WINDOW    */ {0xAA, 0xFF, 0xCC},
+    /* 92 PAL_CAR4_DAMAGED   */ {0xFF, 0xAA, 0x00},
+    /* 93 (cubo)             */ {0x00, 0xFF, 0xFF},
+    /* 94 (cubo)             */ {0x33, 0x00, 0x00},
+    /* 95 (cubo)             */ {0x33, 0x00, 0x33},
+    /* 96 (cubo)             */ {0x33, 0x00, 0x66},
+    /* 97 (cubo)             */ {0x33, 0x00, 0x99},
+    /* 98 (cubo)             */ {0x33, 0x00, 0xCC},
+    /* 99 (cubo)             */ {0x33, 0x00, 0xFF},
+    /* 100 (cubo)            */ {0x33, 0x33, 0x00},
+    /* 101 (cubo)            */ {0x33, 0x33, 0xFF},
+    /* 102 (cubo)            */ {0x33, 0x66, 0x00},
+    /* 103 (cubo)            */ {0x33, 0x66, 0x66},
+
+    /* ── Bloco 7: Boost (104-119) ── */
+    /* 104 PAL_BOOST_BASE    */ {0x60, 0x60, 0xDD},
+    /* 105 PAL_BOOST_GLOW    */ {0xAA, 0xAA, 0xFF},
+    /* 106 PAL_BOOST_DARK    */ {0x40, 0x40, 0xBB},
+    /* 107 PAL_BOOST_OUTLINE */ {0xDD, 0xDD, 0xFF},
+    /* 108 PAL_BOOST_STAR    */ {0xFF, 0xFF, 0x44},
+    /* 109 PAL_BOOST_STAR2   */ {0xFF, 0xCC, 0x00},
+    /* 110 PAL_BOOST_LIGHT   */ {0xCC, 0xCC, 0xFF},
+    /* 111 (cubo)            */ {0x33, 0x66, 0xFF},
+    /* 112 (cubo)            */ {0x33, 0x99, 0x00},
+    /* 113 (cubo)            */ {0x33, 0x99, 0x99},
+    /* 114 (cubo)            */ {0x33, 0x99, 0xCC},
+    /* 115 (cubo)            */ {0x33, 0x99, 0xFF},
+    /* 116 (cubo)            */ {0x33, 0xCC, 0x00},
+    /* 117 (cubo)            */ {0x33, 0xCC, 0x33},
+    /* 118 (cubo)            */ {0x33, 0xCC, 0x66},
+    /* 119 (cubo)            */ {0x33, 0xCC, 0x99},
+
+    /* ── Bloco 8: Casca de banana (120-126) ── */
+    /* 120 PAL_BANANA_YELLOW */ {0xFF, 0xEE, 0x44},
+    /* 121 PAL_BANANA_DARK   */ {0xCC, 0x77, 0x00},
+    /* 122 PAL_BANANA_LIGHT  */ {0xFF, 0xFF, 0x99},
+    /* 123 PAL_BANANA_BROWN  */ {0x88, 0x55, 0x22},
+    /* 124 PAL_BANANA_STEM   */ {0x44, 0x22, 0x00},
+    /* 125 PAL_BANANA_TIP    */ {0xDD, 0xCC, 0x44},
+    /* 126 PAL_BANANA_INNER  */ {0xFF, 0xFF, 0xCC},
+    /* 127 (cubo)            */ {0x33, 0xCC, 0xCC},
+    /* 128 (cubo)            */ {0x33, 0xCC, 0xFF},
+    /* 129 (cubo)            */ {0x33, 0xFF, 0x00},
+    /* 130 (cubo)            */ {0x33, 0xFF, 0x33},
+    /* 131 (cubo)            */ {0x33, 0xFF, 0x99},
+    /* 132 (cubo)            */ {0x33, 0xFF, 0xCC},
+    /* 133 (cubo)            */ {0x33, 0xFF, 0xFF},
+    /* 134 (cubo)            */ {0x66, 0x00, 0x00},
+    /* 135 (cubo)            */ {0x66, 0x00, 0x33},
+
+    /* ── Bloco 9: HUD/UI (136-146) + cubo RGB (147-191) ── */
+    /* 136 PAL_HUD_BG        */ {0x00, 0x00, 0x33},
+    /* 137 PAL_HUD_BORDER    */ {0x44, 0x44, 0xAA},
+    /* 138 PAL_HUD_TEXT      */ {0xF4, 0xF4, 0xF4},
+    /* 139 PAL_HUD_YELLOW    */ {0xFF, 0xD7, 0x00},
+    /* 140 PAL_HUD_RED       */ {0xFF, 0x22, 0x00},
+    /* 141 PAL_HUD_GREEN     */ {0x00, 0xCC, 0x48},
+    /* 142 PAL_HEALTH_FULL   */ {0x00, 0xEE, 0x00},
+    /* 143 PAL_HEALTH_MID    */ {0xFF, 0xA5, 0x00},
+    /* 144 PAL_HEALTH_LOW    */ {0xEE, 0x00, 0x00},
+    /* 145 PAL_P1_INDICATOR  */ {0x00, 0x50, 0xF8},
+    /* 146 PAL_P2_INDICATOR  */ {0xF8, 0x20, 0x00},
+    /* 147 PAL_MENU_DARK      */ {0x0D, 0x0D, 0x1A},
+    /* 148 PAL_BTN_RED        */ {0xDC, 0x26, 0x26},
+    /* 149 PAL_BTN_RED_DRK    */ {0x7F, 0x1D, 0x1D},
+    /* 150 PAL_BTN_RED_LGT    */ {0xF8, 0x71, 0x71},
+    /* 151 PAL_BTN_YLW        */ {0xE8, 0xC5, 0x47},
+    /* 152 PAL_BTN_YLW_LGT    */ {0xFD, 0xE6, 0x8A},
+    /* 153 PAL_BTN_YLW_DRK    */ {0x92, 0x40, 0x0E},
+    /* 154 PAL_TTL_BLUE       */ {0x25, 0x63, 0xEB},
+    /* 155 PAL_TTL_NEAR_BLACK  */ {0x11, 0x11, 0x11},
+    /* 156 PAL_TTL_BLUE_LGT   */ {0x93, 0xC5, 0xFD},
+    /* 157 PAL_TTL_PINK       */ {0xFC, 0xA5, 0xA5},
+    /* 158 PAL_TTL_GREY       */ {0xAA, 0xAA, 0xAA},
+    /* 159 (cubo)            */ {0x66, 0x99, 0x00},
+    /* 160 (cubo)            */ {0x66, 0x99, 0x33},
+    /* 161 (cubo)            */ {0x66, 0x99, 0x99},
+    /* 162 (cubo)            */ {0x66, 0x99, 0xCC},
+    /* 163 (cubo)            */ {0x66, 0x99, 0xFF},
+    /* 164 (cubo)            */ {0x66, 0xCC, 0x00},
+    /* 165 (cubo)            */ {0x66, 0xCC, 0x33},
+    /* 166 (cubo)            */ {0x66, 0xCC, 0x66},
+    /* 167 (cubo)            */ {0x66, 0xCC, 0x99},
+    /* 168 (cubo)            */ {0x66, 0xCC, 0xCC},
+    /* 169 (cubo)            */ {0x66, 0xCC, 0xFF},
+    /* 170 (cubo)            */ {0x66, 0xFF, 0x00},
+    /* 171 (cubo)            */ {0x66, 0xFF, 0x33},
+    /* 172 (cubo)            */ {0x66, 0xFF, 0x66},
+    /* 173 (cubo)            */ {0x66, 0xFF, 0x99},
+    /* 174 (cubo)            */ {0x66, 0xFF, 0xCC},
+    /* 175 (cubo)            */ {0x66, 0xFF, 0xFF},
+    /* 176 (cubo)            */ {0x99, 0x00, 0x00},
+    /* 177 (cubo)            */ {0x99, 0x00, 0x33},
+    /* 178 (cubo)            */ {0x99, 0x00, 0x66},
+    /* 179 (cubo)            */ {0x99, 0x00, 0x99},
+    /* 180 (cubo)            */ {0x99, 0x00, 0xCC},
+    /* 181 (cubo)            */ {0x99, 0x00, 0xFF},
+    /* 182 (cubo)            */ {0x99, 0x33, 0x00},
+    /* 183 (cubo)            */ {0x99, 0x33, 0x66},
+    /* 184 (cubo)            */ {0x99, 0x33, 0x99},
+    /* 185 (cubo)            */ {0x99, 0x33, 0xCC},
+    /* 186 (cubo)            */ {0x99, 0x33, 0xFF},
+    /* 187 (cubo)            */ {0x99, 0x66, 0x00},
+    /* 188 (cubo)            */ {0x99, 0x66, 0x33},
+    /* 189 (cubo)            */ {0x99, 0x66, 0x99},
+    /* 190 (cubo)            */ {0x99, 0x66, 0xCC},
+    /* 191 (cubo)            */ {0x99, 0x66, 0xFF},
+
+    /* ── Cubo RGB geral (192-254) ── */
+    /* 192 (cubo)            */ {0x99, 0x99, 0x00},
+    /* 193 (cubo)            */ {0x99, 0x99, 0x33},
+    /* 194 (cubo)            */ {0x99, 0x99, 0x66},
+    /* 195 (cubo)            */ {0x99, 0x99, 0xCC},
+    /* 196 (cubo)            */ {0x99, 0xCC, 0x00},
+    /* 197 (cubo)            */ {0x99, 0xCC, 0x33},
+    /* 198 (cubo)            */ {0x99, 0xCC, 0x66},
+    /* 199 (cubo)            */ {0x99, 0xCC, 0x99},
+    /* 200 (cubo)            */ {0x99, 0xCC, 0xCC},
+    /* 201 (cubo)            */ {0x99, 0xFF, 0x00},
+    /* 202 (cubo)            */ {0x99, 0xFF, 0x33},
+    /* 203 (cubo)            */ {0x99, 0xFF, 0x66},
+    /* 204 (cubo)            */ {0x99, 0xFF, 0x99},
+    /* 205 (cubo)            */ {0x99, 0xFF, 0xFF},
+    /* 206 (cubo)            */ {0xCC, 0x00, 0x33},
+    /* 207 (cubo)            */ {0xCC, 0x00, 0x66},
+    /* 208 (cubo)            */ {0xCC, 0x00, 0x99},
+    /* 209 (cubo)            */ {0xCC, 0x00, 0xCC},
+    /* 210 (cubo)            */ {0xCC, 0x00, 0xFF},
+    /* 211 (cubo)            */ {0xCC, 0x33, 0x00},
+    /* 212 (cubo)            */ {0xCC, 0x33, 0x66},
+    /* 213 (cubo)            */ {0xCC, 0x33, 0x99},
+    /* 214 (cubo)            */ {0xCC, 0x33, 0xCC},
+    /* 215 (cubo)            */ {0xCC, 0x33, 0xFF},
+    /* 216 (cubo)            */ {0xCC, 0x66, 0x00},
+    /* 217 (cubo)            */ {0xCC, 0x66, 0x66},
+    /* 218 (cubo)            */ {0xCC, 0x66, 0x99},
+    /* 219 (cubo)            */ {0xCC, 0x66, 0xCC},
+    /* 220 (cubo)            */ {0xCC, 0x66, 0xFF},
+    /* 221 (cubo)            */ {0xCC, 0x99, 0x33},
+    /* 222 (cubo)            */ {0xCC, 0x99, 0x66},
+    /* 223 (cubo)            */ {0xCC, 0x99, 0x99},
+    /* 224 (cubo)            */ {0xCC, 0x99, 0xCC},
+    /* 225 (cubo)            */ {0xCC, 0x99, 0xFF},
+    /* 226 (cubo)            */ {0xCC, 0xCC, 0x33},
+    /* 227 (cubo)            */ {0xCC, 0xCC, 0x66},
+    /* 228 (cubo)            */ {0xCC, 0xCC, 0x99},
+    /* 229 (cubo)            */ {0xCC, 0xFF, 0x00},
+    /* 230 (cubo)            */ {0xCC, 0xFF, 0x33},
+    /* 231 (cubo)            */ {0xCC, 0xFF, 0x66},
+    /* 232 (cubo)            */ {0xCC, 0xFF, 0x99},
+    /* 233 (cubo)            */ {0xFF, 0x00, 0x33},
+    /* 234 (cubo)            */ {0xFF, 0x00, 0x66},
+    /* 235 (cubo)            */ {0xFF, 0x00, 0x99},
+    /* 236 (cubo)            */ {0xFF, 0x00, 0xCC},
+    /* 237 (cubo)            */ {0xFF, 0x33, 0x66},
+    /* 238 (cubo)            */ {0xFF, 0x33, 0x99},
+    /* 239 (cubo)            */ {0xFF, 0x33, 0xCC},
+    /* 240 (cubo)            */ {0xFF, 0x33, 0xFF},
+    /* 241 (cubo)            */ {0xFF, 0x66, 0x33},
+    /* 242 (cubo)            */ {0xFF, 0x66, 0x66},
+    /* 243 (cubo)            */ {0xFF, 0x66, 0x99},
+    /* 244 (cubo)            */ {0xFF, 0x66, 0xCC},
+    /* 245 (cubo)            */ {0xFF, 0x66, 0xFF},
+    /* 246 (cubo)            */ {0xFF, 0x99, 0x33},
+    /* 247 (cubo)            */ {0xFF, 0x99, 0x66},
+    /* 248 (cubo)            */ {0xFF, 0x99, 0x99},
+    /* 249 (cubo)            */ {0xFF, 0x99, 0xCC},
+    /* 250 (cubo)            */ {0xFF, 0x99, 0xFF},
+    /* 251 (cubo)            */ {0xFF, 0xCC, 0x33},
+    /* 252 (cubo)            */ {0xFF, 0xCC, 0xCC},
+    /* 253 (cubo)            */ {0xFF, 0xCC, 0xFF},
+    /* 254 (livre)           */ {0x00, 0x00, 0x00},
+
+    /* 255 PAL_TRANSPARENT   */ {0xFF, 0x00, 0xFF},
+};
+
+void palette_load(void) {
+    for (int i = 0; i < 256; i++) {
+        sys_outb(0x3C8, (uint32_t)i);
+        sys_outb(0x3C9, (uint32_t)(GAME_PALETTE[i][0] >> 2));
+        sys_outb(0x3C9, (uint32_t)(GAME_PALETTE[i][1] >> 2));
+        sys_outb(0x3C9, (uint32_t)(GAME_PALETTE[i][2] >> 2));
+    }
+}
+
+uint8_t palette_find_index(uint8_t r, uint8_t g, uint8_t b) {
+    if (r == 0xFF && g == 0x00 && b == 0xFF)
+        return PAL_TRANSPARENT;
+    int best = 0, best_dist = 0x7FFFFFFF;
+    for (int i = 0; i < 255; i++) {
+        int dr = (int)r - (int)GAME_PALETTE[i][0];
+        int dg = (int)g - (int)GAME_PALETTE[i][1];
+        int db = (int)b - (int)GAME_PALETTE[i][2];
+        int d  = dr*dr + dg*dg + db*db;
+        if (d < best_dist) { best_dist = d; best = i; if (d == 0) break; }
+    }
+    return (uint8_t)best;
+}

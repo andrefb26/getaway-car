@@ -1,0 +1,26 @@
+#ifndef _LCOM_MOUSE_H_
+#define _LCOM_MOUSE_H_
+
+#include <minix/sysutil.h>
+#include <lcom/lcf.h>
+#include <stdbool.h>
+#include <stdint.h>
+
+#include "i8042.h"
+#include "kbc.h"
+
+int (mouse_subscribe_int)(uint8_t *bit_no);
+int (mouse_unsubscribe_int)();
+
+void (mouse_ih)();
+void (mouse_sync_bytes)();
+void (mouse_bytes_to_packet)();
+
+int (mouse_write)(uint8_t command);
+
+bool (mouse_packet_ready)();
+struct packet* (get_mouse_packet)();
+
+#endif
+
+

@@ -1,0 +1,27 @@
+/* XPM */
+static char *race_desc_xpm[] = {
+"190 20 2 1",
+"  c #0D0D1A",
+"X c #FDE68A",
+/* pixels */
+"                                                                                                                                                                                              ",
+"                                                                                                                                                                                              ",
+"                                                                                                                                                                                              ",
+"            XXXXXXXXXX    XXXXXX    XXXXXXXX      XXXXXX    XXXXXXXXXX        XXXXXXXXXX    XXXXXX          XXXXXXXXXX    XXXXXX    XX      XX    XXXXXX      XXXXXX    XX      XX            ",
+"            XXXXXXXXXX    XXXXXX    XXXXXXXX      XXXXXX    XXXXXXXXXX        XXXXXXXXXX    XXXXXX          XXXXXXXXXX    XXXXXX    XX      XX    XXXXXX      XXXXXX    XX      XX            ",
+"            XX              XX      XX      XX  XX      XX      XX                XX      XX      XX        XX              XX      XXXX    XX      XX      XX      XX  XX      XX            ",
+"            XX              XX      XX      XX  XX      XX      XX                XX      XX      XX        XX              XX      XXXX    XX      XX      XX      XX  XX      XX            ",
+"            XX              XX      XX      XX  XX              XX                XX      XX      XX        XX              XX      XX  XX  XX      XX      XX          XX      XX            ",
+"            XX              XX      XX      XX  XX              XX                XX      XX      XX        XX              XX      XX  XX  XX      XX      XX          XX      XX            ",
+"            XXXXXXXX        XX      XXXXXXXX      XXXXXX        XX                XX      XX      XX        XXXXXXXX        XX      XX    XXXX      XX        XXXXXX    XXXXXXXXXX            ",
+"            XXXXXXXX        XX      XXXXXXXX      XXXXXX        XX                XX      XX      XX        XXXXXXXX        XX      XX    XXXX      XX        XXXXXX    XXXXXXXXXX            ",
+"            XX              XX      XX  XX              XX      XX                XX      XX      XX        XX              XX      XX      XX      XX              XX  XX      XX            ",
+"            XX              XX      XX  XX              XX      XX                XX      XX      XX        XX              XX      XX      XX      XX              XX  XX      XX            ",
+"            XX              XX      XX    XX    XX      XX      XX                XX      XX      XX        XX              XX      XX      XX      XX      XX      XX  XX      XX            ",
+"            XX              XX      XX    XX    XX      XX      XX                XX      XX      XX        XX              XX      XX      XX      XX      XX      XX  XX      XX            ",
+"            XX            XXXXXX    XX      XX    XXXXXX        XX                XX        XXXXXX          XX            XXXXXX    XX      XX    XXXXXX      XXXXXX    XX      XX            ",
+"            XX            XXXXXX    XX      XX    XXXXXX        XX                XX        XXXXXX          XX            XXXXXX    XX      XX    XXXXXX      XXXXXX    XX      XX            ",
+"                                                                                                                                                                                              ",
+"                                                                                                                                                                                              ",
+"                                                                                                                                                                                              ",
+};
