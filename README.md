@@ -62,7 +62,33 @@ Each lab builds a static library that the game links against.
 
 ## My contribution
 
-I wrote device drivers in the labs, and in the game I implemented the **game mode menu** (Race / Endurance), the **win screen** and the **shield power-up**, besides fixing bugs in the game logic.
+We all worked across the whole project. These are the parts I built (André Baptista):
+
+**Device drivers**
+- The complete **video card driver** (`lab5`): VBE graphics-mode initialisation, mapping video memory, drawing pixels, lines, rectangles and XPM sprites, packaged as the static library the game links against.
+- Fixes and finishing work on the **timer** (`lab2`) and **keyboard** (`lab3`) drivers.
+
+**Game model**
+- The base **element** abstraction and the **car** model.
+- The **track** model.
+- The **obstacles**.
+- **Border and obstacle collision** detection, which I later refactored.
+
+**Rendering**
+- The views for the **car**, **obstacles** and the **scrolling track**.
+- The **scenery** view.
+- Sprite and XPM asset integration.
+- The **split-screen divider**.
+
+**Gameplay and screens**
+- **Speed boost** with smooth acceleration animation.
+- **Shield** power-up.
+- **Race timer**.
+- **Game mode menu** (Race / Endurance).
+- **Win screen**.
+
+**Project structure**
+- Folder restructuring of the source tree, and bug fixing for the final version.
 
 ## Project structure
 
